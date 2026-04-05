@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nanoservices Dashboard</title>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(135deg, #0f172a, #1e293b, #111827);
+      color: #e5e7eb;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .title p {
+      margin: 8px 0 0;
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: rgba(59, 130, 246, 0.18);
+      color: #93c5fd;
+      border: 1px solid rgba(147, 197, 253, 0.25);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 22px;
+      padding: 22px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #fff;
+    }
+
+    .muted {
+      color: #94a3b8;
+      font-size: 0.92rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .stat-box {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      color: #94a3b8;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: 0.95;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #1f2937;
+      color: #e5e7eb;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .result-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      color: #dbeafe;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 0.82rem;
+      color: #94a3b8;
+      font-weight: 700;
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    tbody td {
+      padding: 14px 10px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      font-size: 0.93rem;
+    }
+
+    .status {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .ok {
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+    }
+
+    .fail {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+    }
+
+    .empty {
+      color: #64748b;
+      text-align: center;
+      padding: 24px 0 8px;
+    }
+
+    @media (max-width: 860px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .header {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" x-data="app()" x-init="init()">
+    <div class="header">
+      <div class="title">
+        <h1>Manju Nanoservice Dashboard</h1>
+        <p>Monitor nanoservice requests, response times, and checkout results.</p>
+      </div>
+      <div>
+        <span class="badge" x-text="archLabel ? `Architecture: ${archLabel}` : 'Architecture: unknown'"></span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Service Actions</h3>
+        <div class="muted">Run test requests against your API endpoints.</div>
+
+        <div class="actions">
+          <button class="btn-primary" @click="ping()">Ping Service</button>
+          <button class="btn-success" @click="checkout(1, 100)">Checkout In-Stock</button>
+          <button class="btn-warning" @click="checkout(3, 100)">Checkout Out-of-Stock</button>
+          <button class="btn-secondary" @click="clearTimings()">Clear Logs</button>
+        </div>
+
+        <template x-if="result">
+          <div class="result-box" x-text="result"></div>
+        </template>
+      </div>
+
+      <div class="card">
+        <h3>Quick Summary</h3>
+        <div class="muted">Latest activity from your frontend requests.</div>
+
+        <div class="stats">
+          <div class="stat-box">
+            <div class="stat-label">Last Request</div>
+            <div class="stat-value" x-text="lastReq.label || '—'"></div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">Response Time</div>
+            <div class="stat-value" x-text="lastReq.ms != null ? `${lastReq.ms.toFixed(1)} ms` : '—'"></div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">Total Stored Logs</div>
+            <div class="stat-value" x-text="timings.length"></div>
+          </div>
+
+          <div class="stat-box">
+            <div class="stat-label">Current Mode</div>
+            <div class="stat-value" x-text="archLabel || 'unknown'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+      <h3>Request History</h3>
+      <div class="muted">Last 10 requests captured by the UI.</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Status</th>
+              <th style="text-align:right;">Time (ms)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template x-if="timings.length === 0">
+              <tr>
+                <td colspan="4" class="empty">No requests recorded yet.</td>
+              </tr>
+            </template>
+
+            <template x-for="r in timings" :key="r.id">
+              <tr>
+                <td x-text="r.method"></td>
+                <td x-text="r.path"></td>
+                <td>
+                  <span class="status" :class="r.ok ? 'ok' : 'fail'" x-text="r.status"></span>
+                </td>
+                <td style="text-align:right;" x-text="r.ms.toFixed(1)"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function app() {
+      return {
+        archLabel: "",
+        timings: [],
+        lastReq: {},
+        result: "",
+
+        clearTimings() {
+          this.timings = [];
+          this.lastReq = {};
+          this.result = "";
+        },
+
+        record(method, path, res, ms, ok) {
+          const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+          const entry = {
+            id,
+            method,
+            path,
+            ok,
+            status: res ? res.status : "ERR",
+            ms
+          };
+          this.lastReq = { label: `${method} ${path}`, ms };
+          this.timings.unshift(entry);
+          this.timings = this.timings.slice(0, 10);
+        },
+
+        async timedJson(method, path, options = {}) {
+          const start = performance.now();
+          let res = null;
+
+          try {
+            res = await fetch(path, { method, ...options });
+            const data = await res.json().catch(() => ({}));
+            const ms = performance.now() - start;
+            this.record(method, path, res, ms, res.ok);
+
+            if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+            return data;
+          } catch (err) {
+            const ms = performance.now() - start;
+            this.record(method, path, res, ms, false);
+            throw err;
+          }
+        },
+
+        async init() {
+          try {
+            const info = await this.timedJson("GET", "/api/arch");
+            this.archLabel = info.arch || "unknown";
+          } catch (e) {
+            this.archLabel = "unknown";
+          }
+        },
+
+        async ping() {
+          await this.timedJson("GET", "/api/ping");
+          this.result = "Ping ok";
+        },
+
+        async checkout(sku, subtotal) {
+          try {
+            const data = await this.timedJson("POST", "/api/checkout", {
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ sku, subtotal }),
+            });
+            this.result = JSON.stringify(data, null, 2);
+          } catch (e) {
+            this.result = e.message;
+          }
+        },
+      };
+    }
+  </script>
+</body>
+</html>

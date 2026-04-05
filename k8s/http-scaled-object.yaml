@@ -1,0 +1,21 @@
+apiVersion: http.keda.sh/v1alpha1
+kind: HTTPScaledObject
+metadata:
+  name: http-target-httpso
+  namespace: lab5
+spec:
+  hosts:
+    - localhost
+  pathPrefixes:
+    - /
+  scaleTargetRef:
+    name: http-target
+    kind: Deployment
+    apiVersion: apps/v1
+    service: http-target-svc
+    port: 80
+  replicas:
+    min: 0
+    max: 5
+  scaledownPeriod: 30
+  targetPendingRequests: 50

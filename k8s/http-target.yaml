@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-target
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: http-target
+  template:
+    metadata:
+      labels:
+        app: http-target
+    spec:
+      containers:
+        - name: echo
+          image: hashicorp/http-echo:0.2.3
+          args:
+            - -listen=:5678
+            - -text={"ok":true}
+          ports:
+            - containerPort: 5678
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: http-target-svc
+spec:
+  selector:
+    app: http-target
+  ports:
+    - port: 80
+      targetPort: 5678
