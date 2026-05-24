@@ -1,0 +1,94 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: falco
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: falco
+  namespace: falco
+  labels:
+    app: falco
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: falco
+  namespace: falco
+  labels:
+    app: falco
+spec:
+  selector:
+    matchLabels:
+      app: falco
+  template:
+    metadata:
+      labels:
+        app: falco
+    spec:
+      serviceAccountName: falco
+
+      # Falco needs visibility into host processes/network
+      hostNetwork: true
+      hostPID: true
+      dnsPolicy: ClusterFirstWithHostNet
+
+      tolerations:
+        - operator: Exists
+
+      containers:
+        - name: falco
+          image: docker.io/falcosecurity/falco:0.43.0
+          imagePullPolicy: IfNotPresent
+
+          securityContext:
+            privileged: true
+
+          args:
+            - /usr/bin/falco
+            - -o
+            - engine.kind=modern_ebpf
+            - -o
+            - json_output=true
+            - -o
+            - stdout_output.enabled=true
+            - -o
+            - file_output.enabled=false
+            - -o
+            - syslog_output.enabled=false
+
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+          volumeMounts:
+            - name: proc-fs
+              mountPath: /host/proc
+              readOnly: true
+
+            - name: etc-fs
+              mountPath: /host/etc
+              readOnly: true
+
+            - name: tracing-fs
+              mountPath: /sys/kernel/tracing
+              readOnly: true
+
+      volumes:
+        - name: proc-fs
+          hostPath:
+            path: /proc
+
+        - name: etc-fs
+          hostPath:
+            path: /etc
+
+        - name: tracing-fs
+          hostPath:
+            path: /sys/kernel/tracing
+            type: DirectoryOrCreate
+
+
